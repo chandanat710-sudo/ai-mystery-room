@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import fs from 'node:fs';
+import path from 'node:path';
 import { createCaseSchema, accusationSchema, validateReferences } from './domain';
 import { ApiError, errorHandler, notFound } from './middleware/error-handler';
 import { CaseModel } from './models/Case';
@@ -9,9 +11,12 @@ import { generateMystery } from './services/mystery-generation.service';
 import { accuse, caseHasExpired, findActiveCase, saveCase, validCaseId } from './services/case.service';
 import { toPublicCase, toVerdict } from './services/public-case';
 
-export function createApp(clientOrigin = process.env.CLIENT_ORIGIN ?? 'http://localhost:5173') {
+export function createApp(clientOrigin = process.env.CLIENT_ORIGIN) {
   const app = express();
-  app.disable('x-powered-by'); app.use(helmet()); app.use(cors({ origin: clientOrigin })); app.use(express.json({ limit: '32kb' }));
+  app.disable('x-powered-by'); app.use(helmet());
+  if (clientOrigin) app.use(cors({ origin: clientOrigin }));
+  else if (process.env.NODE_ENV !== 'production') app.use(cors({ origin: 'http://localhost:5173' }));
+  app.use(express.json({ limit: '32kb' }));
   const limiter = rateLimit({ windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS ?? 900000), limit: Number(process.env.RATE_LIMIT_MAX_REQUESTS ?? 10), standardHeaders: true, legacyHeaders: false });
   app.get('/api/v1/health', (_req, res) => res.json({ status: 'ok' }));
   app.post('/api/v1/cases', limiter, async (req, res, next) => {
@@ -60,6 +65,17 @@ export function createApp(clientOrigin = process.env.CLIENT_ORIGIN ?? 'http://lo
       res.json({ result: toVerdict(solved) });
     } catch (err) { next(err); }
   });
+  if (process.env.NODE_ENV === 'production') {
+    const clientDist = path.resolve(__dirname, '../../client/dist');
+    const indexFile = path.join(clientDist, 'index.html');
+    if (fs.existsSync(indexFile)) {
+      app.use(express.static(clientDist));
+      app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/api/')) return next();
+        res.sendFile(indexFile);
+      });
+    }
+  }
   app.use(notFound); app.use(errorHandler);
   return app;
 }
