@@ -12,10 +12,9 @@ AI Mystery Room turns a fictional premise into an interactive detective case. Al
 
 ```powershell
 npm install
-Copy-Item .env.example .env
 ```
 
-Set `GEMINI_API_KEY`, `MONGODB_URI`, and `GEMINI_MODEL` in `.env`. Choose a model available to your Google AI account. `GEMINI_TIMEOUT_MS` controls the per-attempt request timeout (default 120000). Never put the key in a `VITE_*` variable. If your system DNS resolver refuses MongoDB Atlas SRV lookups, set the optional `MONGODB_DNS_SERVERS` to a comma-separated DNS resolver IP (for example `8.8.8.8`) that your network permits. This sends DNS queries to that resolver instead of the system default.
+Create a root `.env` file locally and set `GEMINI_API_KEY`, `MONGODB_URI`, and `GEMINI_MODEL`. Choose a model available to your Google AI account. `GEMINI_TIMEOUT_MS` controls the per-attempt request timeout (default 120000). Keep `.env` out of Git and never put the key in a `VITE_*` variable. If your system DNS resolver refuses MongoDB Atlas SRV lookups, set the optional `MONGODB_DNS_SERVERS` to a comma-separated DNS resolver IP (for example `8.8.8.8`) that your network permits. This sends DNS queries to that resolver instead of the system default.
 
 ```powershell
 npm run dev
@@ -51,7 +50,7 @@ Set these environment variables in Render:
 - `GEMINI_MODEL`: a model name available to that key.
 - `NODE_ENV`: set by the Blueprint to `production`.
 
-Never add API keys to a `VITE_*` variable or commit them to `render.yaml`, GitHub, or `.env.example`.
+Never add API keys to a `VITE_*` variable or commit them to `render.yaml` or GitHub.
 
 ### 4. Deploy and check the app
 
