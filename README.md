@@ -42,7 +42,7 @@ Atlas only accepts connections from addresses in the project's IP access list. A
 
 ### 3. Create the Render service
 
-In Render, choose **New → Blueprint**, connect the GitHub repository, and select the branch to deploy. Render reads `render.yaml`; accept the `ai-mystery-room` web service and set the requested secret values when prompted. The Blueprint builds with `npm ci && npm run build`, starts with `npm start`, and checks `/api/v1/health`.
+In Render, choose **New → Blueprint**, connect the GitHub repository, and select the branch to deploy. Render reads `render.yaml`; accept the `ai-mystery-room` web service and set the requested secret values when prompted. The Blueprint builds with `npm ci --include=dev && npm run build`, starts with `npm start`, and checks `/api/v1/health`.
 
 Set these environment variables in Render:
 
